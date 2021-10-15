@@ -7,6 +7,7 @@ public enum Player2State
 {
     walk,
     punch,
+    kick,
     block,
     hit
 }
@@ -34,13 +35,14 @@ public class Player2Controller : MonoBehaviour
     void Update()
     {
         CheckInput();
-        if (Input.GetButtonDown("PunchP2") && currentState != Player2State.punch && currentState != Player2State.block && currentState != Player2State.hit)
+        if (Input.GetButtonDown("PunchP2") && currentState != Player2State.punch && currentState != Player2State.block && currentState != Player2State.hit && currentState != Player2State.kick)
         {
             StartCoroutine(AttackCo());
         }
-        else if (currentState == Player2State.walk)
+        
+        if (Input.GetButtonDown("KickP2") && currentState != Player2State.punch && currentState != Player2State.block && currentState != Player2State.hit && currentState != Player2State.kick)
         {
-            //ApplyMovement();
+            StartCoroutine(KickCo());
         }
     }
 
@@ -51,6 +53,16 @@ public class Player2Controller : MonoBehaviour
         yield return null;
         animator.SetBool("punching_P2", false);
         yield return new WaitForSeconds(.5f);
+        currentState = Player2State.walk;
+    }
+
+    private IEnumerator KickCo()
+    {
+        animator.SetBool("kicking_P2", true);
+        currentState = Player2State.kick;
+        yield return null;
+        animator.SetBool("kicking_P2", false);
+        yield return new WaitForSeconds(1f);
         currentState = Player2State.walk;
     }
 
@@ -89,16 +101,34 @@ public class Player2Controller : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (Input.GetAxis("HorizontalP2") > 0)
+        if (collision.tag == "Punch P1")
         {
-            StartCoroutine(BlockCo());
-            TakeDamage(2);
+            if (Input.GetAxis("HorizontalP2") > 0)
+            {
+                StartCoroutine(BlockCo());
+                TakeDamage(2);
+            }
+            else
+            {
+                Debug.Log("Trigger hit!");
+                StartCoroutine(HitCo());
+                TakeDamage(10);
+            }
         }
-        else
+
+        if (collision.tag == "Kick P1")
         {
-            Debug.Log("Trigger hit!");
-            StartCoroutine(HitCo());
-            TakeDamage(10);
+            if (Input.GetAxis("HorizontalP2") > 0)
+            {
+                StartCoroutine(BlockCo());
+                TakeDamage(4);
+            }
+            else
+            {
+                Debug.Log("Trigger hit!");
+                StartCoroutine(HitCo());
+                TakeDamage(15);
+            }
         }
     }
 

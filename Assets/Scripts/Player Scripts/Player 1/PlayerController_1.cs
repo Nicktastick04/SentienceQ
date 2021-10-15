@@ -7,6 +7,7 @@ public enum PlayerState
 {
     walk,
     punch,
+    kick,
     block,
     hit
 }
@@ -35,13 +36,14 @@ public class PlayerController_1 : MonoBehaviour
     {
         CheckInput();
       //  Crouch();
-        if (Input.GetButtonDown("Punch") && currentState != PlayerState.punch && currentState != PlayerState.block && currentState != PlayerState.hit)
+        if (Input.GetButtonDown("Punch") && currentState != PlayerState.punch && currentState != PlayerState.block && currentState != PlayerState.hit && currentState != PlayerState.kick)
         {
             StartCoroutine(AttackCo());
         }
-        else if (currentState == PlayerState.walk)
+
+        if (Input.GetButtonDown("Kick") && currentState != PlayerState.punch && currentState != PlayerState.block && currentState != PlayerState.hit && currentState != PlayerState.kick)
         {
-            //ApplyMovement();
+            StartCoroutine(KickCo());
         }
     }
 
@@ -52,6 +54,16 @@ public class PlayerController_1 : MonoBehaviour
         yield return null;
         animator.SetBool("punching", false);
         yield return new WaitForSeconds(.5f);
+        currentState = PlayerState.walk;
+    }
+
+    private IEnumerator KickCo()
+    {
+        animator.SetBool("kicking", true);
+        currentState = PlayerState.kick;
+        yield return null;
+        animator.SetBool("kicking", false);
+        yield return new WaitForSeconds(1f);
         currentState = PlayerState.walk;
     }
 
@@ -103,6 +115,21 @@ public class PlayerController_1 : MonoBehaviour
                 Debug.Log("punch hit!");
                 StartCoroutine(HitCo());
                 TakeDamage(10);
+            }
+        }
+
+        if (collision.tag == "Kick P2")
+        {
+            if (Input.GetAxis("Horizontal") > 0)
+            {
+                StartCoroutine(BlockCo());
+                TakeDamage(4);
+            }
+            else
+            {
+                Debug.Log("Trigger hit!");
+                StartCoroutine(HitCo());
+                TakeDamage(15);
             }
         }
     }
