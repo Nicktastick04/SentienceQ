@@ -8,6 +8,7 @@ public enum PlayerState
     walk,
     punch,
     kick,
+    projectile,
     block,
     hit
 }
@@ -21,6 +22,7 @@ public class PlayerController_1 : MonoBehaviour
     public int maxHealth = 100;
     public int currentHealth;
     public HealthBar_P1 healthbar;
+    public GameObject projectile;
     // Start is called before the first frame update
     void Start()
     {
@@ -35,13 +37,18 @@ public class PlayerController_1 : MonoBehaviour
     void Update()
     {
         CheckInput();
-      //  Crouch();
-        if (Input.GetButtonDown("Punch") && currentState != PlayerState.punch && currentState != PlayerState.block && currentState != PlayerState.hit && currentState != PlayerState.kick)
+        //  Crouch();
+        if (Input.GetButtonDown("Projectile") && currentState != PlayerState.punch && currentState != PlayerState.block && currentState != PlayerState.hit && currentState != PlayerState.kick && currentState != PlayerState.projectile)
+        {
+            StartCoroutine(ProjectileCo());
+            //    Instantiate(projectile, transform.position, Quaternion.identity);
+        }
+        if (Input.GetButtonDown("Punch") && currentState != PlayerState.punch && currentState != PlayerState.block && currentState != PlayerState.hit && currentState != PlayerState.kick && currentState != PlayerState.projectile)
         {
             StartCoroutine(AttackCo());
         }
 
-        if (Input.GetButtonDown("Kick") && currentState != PlayerState.punch && currentState != PlayerState.block && currentState != PlayerState.hit && currentState != PlayerState.kick)
+        if (Input.GetButtonDown("Kick") && currentState != PlayerState.punch && currentState != PlayerState.block && currentState != PlayerState.hit && currentState != PlayerState.kick && currentState != PlayerState.projectile)
         {
             StartCoroutine(KickCo());
         }
@@ -64,6 +71,14 @@ public class PlayerController_1 : MonoBehaviour
         yield return null;
         animator.SetBool("kicking", false);
         yield return new WaitForSeconds(1f);
+        currentState = PlayerState.walk;
+    }
+
+    private IEnumerator ProjectileCo()
+    {
+        currentState = PlayerState.projectile;
+        Instantiate(projectile, transform.position, Quaternion.identity);
+        yield return new WaitForSeconds(1.4f);
         currentState = PlayerState.walk;
     }
 
@@ -130,6 +145,20 @@ public class PlayerController_1 : MonoBehaviour
                 Debug.Log("Trigger hit!");
                 StartCoroutine(HitCo());
                 TakeDamage(15);
+            }
+        }
+        if (collision.tag == "Projectile P2")
+        {
+            if (Input.GetAxis("Horizontal") > 0)
+            {
+                StartCoroutine(BlockCo());
+                TakeDamage(5);
+            }
+            else
+            {
+                Debug.Log("Trigger hit!");
+                StartCoroutine(HitCo());
+                TakeDamage(20);
             }
         }
     }

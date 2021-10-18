@@ -161,6 +161,7 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   healthbar: {fileID: 1289739194}
+  projectile: {fileID: 121368092075612935, guid: b87eed4b86cd1be468d3da3ac07019f6, type: 3}
 --- !u!50 &240882729
 Rigidbody2D:
   serializedVersion: 4
@@ -755,6 +756,7 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   healthbar: {fileID: 1274098174}
+  projectile: {fileID: 121368092075612935, guid: 472dad3a5cdd3a740af531349e626394, type: 3}
 --- !u!50 &1270008273
 Rigidbody2D:
   serializedVersion: 4

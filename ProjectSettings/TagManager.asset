@@ -10,6 +10,8 @@ TagManager:
   - Punch P2
   - Kick P1
   - Kick P2
+  - Projectile P1
+  - Projectile P2
   layers:
   - Default
   - TransparentFX
