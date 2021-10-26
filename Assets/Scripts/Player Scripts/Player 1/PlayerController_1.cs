@@ -9,8 +9,11 @@ public enum PlayerState
     punch,
     kick,
     projectile,
+    spotdodge,
     block,
-    hit
+    hit,
+    entry,
+    exit,
 }
 public class PlayerController_1 : MonoBehaviour
 {
@@ -52,6 +55,11 @@ public class PlayerController_1 : MonoBehaviour
         {
             StartCoroutine(KickCo());
         }
+
+        if (Input.GetButtonDown("SpotDodge") && currentState != PlayerState.punch && currentState != PlayerState.block && currentState != PlayerState.hit && currentState != PlayerState.kick && currentState != PlayerState.projectile)
+        {
+            StartCoroutine(SpotDodgeCo());
+        }
     }
 
     private IEnumerator AttackCo()
@@ -79,6 +87,18 @@ public class PlayerController_1 : MonoBehaviour
         currentState = PlayerState.projectile;
         Instantiate(projectile, transform.position, Quaternion.identity);
         yield return new WaitForSeconds(1.4f);
+        currentState = PlayerState.walk;
+    }
+
+    private IEnumerator SpotDodgeCo()
+    {
+        animator.SetBool("dodge", true);
+        currentState = PlayerState.spotdodge;
+        yield return null;
+        animator.SetBool("dodge", false);
+        yield return new WaitForSeconds(0.6f);
+        currentState = PlayerState.exit;
+        yield return new WaitForSeconds(0.3f);
         currentState = PlayerState.walk;
     }
 
@@ -124,6 +144,10 @@ public class PlayerController_1 : MonoBehaviour
             {
                 StartCoroutine(BlockCo());
                 TakeDamage(2);
+            }
+            else if (currentState == PlayerState.spotdodge)
+            {
+                TakeDamage(0);
             }
             else
             {
