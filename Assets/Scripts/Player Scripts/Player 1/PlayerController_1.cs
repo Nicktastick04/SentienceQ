@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public enum PlayerState
 {
+    neutral,
     walk,
     punch,
     kick,
@@ -56,6 +57,12 @@ public class PlayerController_1 : MonoBehaviour
             StartCoroutine(KickCo());
         }
 
+        if (Input.GetButtonDown("Kick") && currentState != PlayerState.block && currentState != PlayerState.hit && currentState != PlayerState.kick && currentState != PlayerState.projectile)
+        {
+            // StartCoroutine(KickAfterPunchCo());
+            StartCoroutine(KickCo());
+        }
+
         if (Input.GetButtonDown("SpotDodge") && currentState != PlayerState.punch && currentState != PlayerState.block && currentState != PlayerState.hit && currentState != PlayerState.kick && currentState != PlayerState.projectile)
         {
             StartCoroutine(SpotDodgeCo());
@@ -68,18 +75,29 @@ public class PlayerController_1 : MonoBehaviour
         currentState = PlayerState.punch;
         yield return null;
         animator.SetBool("punching", false);
-        yield return new WaitForSeconds(.5f);
-        currentState = PlayerState.walk;
+        yield return new WaitForSeconds(0.5f);
+        if (currentState == PlayerState.punch)
+        {
+            currentState = PlayerState.walk;
+        }
+        //currentState = PlayerState.walk;
     }
 
     private IEnumerator KickCo()
     {
         animator.SetBool("kicking", true);
         currentState = PlayerState.kick;
-        yield return null;
-        animator.SetBool("kicking", false);
         yield return new WaitForSeconds(1f);
+        animator.SetBool("kicking", false);
+        yield return null;
         currentState = PlayerState.walk;
+    }
+
+    private IEnumerator KickAfterPunchCo()
+    {
+        animator.SetBool("kickAfterPunch", true);
+        currentState = PlayerState.kick;
+        yield return null;
     }
 
     private IEnumerator ProjectileCo()
@@ -120,6 +138,22 @@ public class PlayerController_1 : MonoBehaviour
     {
         if (currentState == PlayerState.walk)
         {
+            if(Input.GetAxis("Horizontal") > 0)
+            {
+                animator.SetBool("walkingForward", true);
+            }
+            else
+            {
+                animator.SetBool("walkingForward", false);
+            }
+            if (Input.GetAxis("Horizontal") < 0)
+            {
+                animator.SetBool("walkingBackward", true);
+            }
+            else
+            {
+                animator.SetBool("walkingBackward", false);
+            }
             ApplyMovement();
         } 
       //  ApplyMovement();
@@ -163,6 +197,10 @@ public class PlayerController_1 : MonoBehaviour
             {
                 StartCoroutine(BlockCo());
                 TakeDamage(4);
+            }
+            else if (currentState == PlayerState.spotdodge)
+            {
+                TakeDamage(0);
             }
             else
             {

@@ -9,8 +9,11 @@ public enum Player2State
     punch,
     kick,
     projectile,
+    spotdodge,
     block,
-    hit
+    hit,
+    entry,
+    exit
 }
 public class Player2Controller : MonoBehaviour
 {
@@ -51,6 +54,11 @@ public class Player2Controller : MonoBehaviour
         {
             StartCoroutine(KickCo());
         }
+
+        if (Input.GetButtonDown("SpotDodgeP2") && currentState != Player2State.punch && currentState != Player2State.block && currentState != Player2State.hit && currentState != Player2State.kick && currentState != Player2State.projectile)
+        {
+            StartCoroutine(SpotDodgeCo());
+        }
     }
 
     private IEnumerator AttackCo()
@@ -78,6 +86,18 @@ public class Player2Controller : MonoBehaviour
         currentState = Player2State.projectile;
         Instantiate(projectile, transform.position, Quaternion.identity);
         yield return new WaitForSeconds(1.4f);
+        currentState = Player2State.walk;
+    }
+
+    private IEnumerator SpotDodgeCo()
+    {
+        animator.SetBool("dodge", true);
+        currentState = Player2State.spotdodge;
+        yield return null;
+        animator.SetBool("dodge", false);
+        yield return new WaitForSeconds(0.6f);
+        currentState = Player2State.exit;
+        yield return new WaitForSeconds(0.3f);
         currentState = Player2State.walk;
     }
 
@@ -123,6 +143,10 @@ public class Player2Controller : MonoBehaviour
                 StartCoroutine(BlockCo());
                 TakeDamage(2);
             }
+            else if (currentState == Player2State.spotdodge)
+            {
+                TakeDamage(0);
+            }
             else
             {
                 Debug.Log("Trigger hit!");
@@ -137,6 +161,10 @@ public class Player2Controller : MonoBehaviour
             {
                 StartCoroutine(BlockCo());
                 TakeDamage(4);
+            }
+            else if (currentState == Player2State.spotdodge)
+            {
+                TakeDamage(0);
             }
             else
             {
